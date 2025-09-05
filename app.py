@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-WISDOM Survey Flask Backend - Production Version
-Optimized for deployment on Render, Railway, Heroku, etc.
+WISDOM Survey Flask Backend - Lightweight Version for Vercel
+Optimized for deployment with minimal dependencies
 """
 
 from flask import Flask, request, jsonify
@@ -13,7 +13,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
-import pandas as pd
+import statistics
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for your HTML frontend
@@ -137,12 +137,40 @@ View all responses at: {request.host_url}stats
     except Exception as e:
         print(f"Failed to send email: {e}")
 
+def read_csv_data():
+    """Read CSV data and return list of responses"""
+    if not os.path.exists(CSV_FILE):
+        return []
+    
+    responses = []
+    try:
+        with open(CSV_FILE, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if row.get('total_score'):  # Skip empty rows
+                    responses.append({
+                        'participant_id': row.get('participant_id'),
+                        'age': row.get('age'),
+                        'gender': row.get('gender'),
+                        'education': row.get('education'),
+                        'submission_timestamp': row.get('submission_timestamp'),
+                        'total_score': float(row.get('total_score', 0)),
+                        'creativity_score': float(row.get('creativity_score', 0)),
+                        'curiosity_score': float(row.get('curiosity_score', 0)),
+                        'judgment_score': float(row.get('judgment_score', 0)),
+                        'social_score': float(row.get('social_score', 0))
+                    })
+    except Exception as e:
+        print(f"Error reading CSV: {e}")
+    
+    return responses
+
 @app.route('/')
 def home():
     """Simple status page"""
     return jsonify({
         'status': 'WISDOM Survey Backend Running',
-        'version': '1.0.0',
+        'version': '2.0.0-lightweight',
         'endpoints': {
             'submit': '/submit_survey (POST)',
             'stats': '/stats (GET)',
@@ -188,24 +216,35 @@ def submit_survey():
 
 @app.route('/stats')
 def get_stats():
-    """Get basic statistics"""
+    """Get basic statistics using lightweight calculations"""
     try:
-        if os.path.exists(CSV_FILE):
-            df = pd.read_csv(CSV_FILE)
+        responses = read_csv_data()
+        
+        if not responses:
+            return jsonify({'total_responses': 0, 'message': 'No responses yet'})
+        
+        total_scores = [r['total_score'] for r in responses if r['total_score']]
+        
+        if total_scores:
             stats = {
-                'total_responses': len(df),
-                'latest_submission': df['submission_timestamp'].max() if not df.empty else None,
-                'average_total_score': round(df['total_score'].mean(), 2) if not df.empty else 0,
+                'total_responses': len(responses),
+                'latest_submission': max(r['submission_timestamp'] for r in responses),
+                'average_total_score': round(statistics.mean(total_scores), 2),
                 'score_distribution': {
-                    'mean': round(df['total_score'].mean(), 2) if not df.empty else 0,
-                    'std': round(df['total_score'].std(), 2) if not df.empty else 0,
-                    'min': int(df['total_score'].min()) if not df.empty else 0,
-                    'max': int(df['total_score'].max()) if not df.empty else 0
+                    'mean': round(statistics.mean(total_scores), 2),
+                    'min': int(min(total_scores)),
+                    'max': int(max(total_scores))
                 }
             }
+            
+            # Add standard deviation if more than 1 response
+            if len(total_scores) > 1:
+                stats['score_distribution']['std'] = round(statistics.stdev(total_scores), 2)
+            
             return jsonify(stats)
         else:
-            return jsonify({'total_responses': 0, 'message': 'No responses yet'})
+            return jsonify({'total_responses': len(responses), 'message': 'No valid scores found'})
+            
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
