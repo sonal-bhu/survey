@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WISDOM Research Survey - Google Sheets Version</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c5aa0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #2c5aa0;
+            margin: 0;
+            font-size: 2.5em;
+            letter-spacing: 2px;
+        }
+        
+        .instructions {
+            background-color: #e8f4fd;
+            border-left: 4px solid #2c5aa0;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        
+        .participant-info {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        
+        .participant-info h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .question-container {
+            background-color: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: box-shadow 0.2s ease;
+        }
+        
+        .question-container:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .question-number {
+            color: #2c5aa0;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            color: #495057;
+        }
+        
+        .response-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .response-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .response-option:hover {
+            background-color: #e2e6ea;
+            border-color: #adb5bd;
+        }
+        
+        .response-option.selected {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .response-option input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+        
+        .response-option label {
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #28a745;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .button {
+            background-color: #2c5aa0;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        
+        .button:hover {
+            background-color: #1e3d6f;
+        }
+        
+        .button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .results h3 {
+            color: #0c5460;
+            margin-top: 0;
+        }
+        
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #bee5eb;
+        }
+        
+        .score-item:last-child {
+            border-bottom: none;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .success {
+            color: #28a745;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .data-collection-note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .response-options {
+                gap: 8px;
+            }
+            
+            .response-option {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>WISDOM</h1>
+            <p>Research Survey Questionnaire</p>
+        </div>
+
+        <div class="data-collection-note">
+            <h4>📊 Data Collection Setup Required</h4>
+            <p><strong>Researcher:</strong> To collect responses automatically, you need to set up a Google Sheets integration. 
+            See the setup instructions in <code>google_sheets_setup.md</code></p>
+            <p><strong>Current Status:</strong> Responses will be submitted but need backend configuration to be saved.</p>
+        </div>
+
+        <div id="instructions" class="instructions">
+            <h3>Welcome to the WISDOM Questionnaire</h3>
+            <p>This survey consists of 20 questions about your thoughts, behaviors, and attitudes. Please read each statement carefully and select the response that best describes how much each statement is like you.</p>
+            
+            <p><strong>Response Options:</strong></p>
+            <ul>
+                <li><strong>Very Much Like Me</strong> - This statement describes me very well</li>
+                <li><strong>Mostly Like Me</strong> - This statement describes me well most of the time</li>
+                <li><strong>Somewhat Like Me</strong> - This statement describes me to some extent</li>
+                <li><strong>A Little Like Me</strong> - This statement describes me only slightly</li>
+                <li><strong>Not Like Me At All</strong> - This statement does not describe me</li>
+            </ul>
+            
+            <p>Please be honest in your responses. There are no right or wrong answers. Your responses will be kept confidential and used for research purposes only.</p>
+        </div>
+
+        <div id="participant-info" class="participant-info">
+            <h3>Participant Information (Optional)</h3>
+            <div class="form-group">
+                <label for="participantId">Participant ID:</label>
+                <input type="text" id="participantId" placeholder="Leave blank for auto-generation">
+            </div>
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="number" id="age" min="18" max="100" placeholder="Optional">
+            </div>
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <input type="text" id="gender" placeholder="Optional">
+            </div>
+            <div class="form-group">
+                <label for="education">Highest Level of Education:</label>
+                <input type="text" id="education" placeholder="Optional">
+            </div>
+            <button class="button" onclick="startSurvey()">Begin Survey</button>
+        </div>
+
+        <div id="survey-content" class="hidden">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+            
+            <div id="questions-container"></div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="button" id="submitBtn" onclick="submitSurvey()" disabled>Submit Survey</button>
+                <div id="error-message" class="error hidden">Please answer all questions before submitting.</div>
+                <div id="success-message" class="success hidden">Survey submitted successfully! Thank you for participating.</div>
+            </div>
+        </div>
+
+        <div id="results" class="results hidden">
+            <h3>Survey Complete - Thank You!</h3>
+            <div id="scores-container"></div>
+            <p style="margin-top: 20px;"><strong>Note:</strong> Your responses have been submitted to the researcher. Higher scores indicate stronger agreement with wisdom-related traits.</p>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION - UPDATE THESE FOR YOUR RESEARCH
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+        const RESEARCHER_EMAIL = 'your-email@institution.edu'; // Backup email collection
+
+        const questions = [
+            "I enjoy creating things that are new and different.",
+            "I do not have many questions.",
+            "I consider the positives and negatives of every option when I am making a decision.",
+            "If there is a chance to learn something new, I jump right in.",
+            "Others tell me that I give good advice.",
+            "I see myself as a very creative person.",
+            "I am curious about how things work.",
+            "I carefully think about the opinions of others before I make a decision.",
+            "I get excited when I see there is something new to learn.",
+            "My friends ask for my opinion before they make an important decision.",
+            "I often figure out different ways of doing things.",
+            "I frequently ask questions.",
+            "I wait until I have all the facts before I make a decision.",
+            "I love learning about how to do different things.",
+            "People tell me that I am a wise person.",
+            "I always like to do things in different ways.",
+            "I am always full of questions.",
+            "I think about all my choices before I make a decision.",
+            "When I want to learn something, I try to find out everything about it.",
+            "I am able to solve problems in a way that is pleasing to everyone."
+        ];
+
+        const responseOptions = [
+            { value: 5, text: "Very Much Like Me" },
+            { value: 4, text: "Mostly Like Me" },
+            { value: 3, text: "Somewhat Like Me" },
+            { value: 2, text: "A Little Like Me" },
+            { value: 1, text: "Not Like Me At All" }
+        ];
+
+        let responses = {};
+        let participantInfo = {};
+
+        function startSurvey() {
+            // Collect participant info
+            participantInfo = {
+                participantId: document.getElementById('participantId').value || generateParticipantId(),
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                education: document.getElementById('education').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // Hide participant info section and show survey
+            document.getElementById('instructions').classList.add('hidden');
+            document.getElementById('participant-info').classList.add('hidden');
+            document.getElementById('survey-content').classList.remove('hidden');
+
+            renderQuestions();
+        }
+
+        function generateParticipantId() {
+            const now = new Date();
+            return `P_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}`;
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            
+            questions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                
+                const questionNumber = index + 1;
+                
+                questionDiv.innerHTML = `
+                    <div class="question-number">Question ${questionNumber} of 20</div>
+                    <div class="question-text">${question}</div>
+                    <div class="response-options">
+                        ${responseOptions.map(option => `
+                            <div class="response-option" onclick="selectResponse(${questionNumber}, ${option.value}, this)">
+                                <input type="radio" name="q${questionNumber}" value="${option.value}" id="q${questionNumber}_${option.value}">
+                                <label for="q${questionNumber}_${option.value}">${option.text}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function selectResponse(questionNum, value, element) {
+            // Remove selected class from all options for this question
+            const questionContainer = element.parentElement;
+            questionContainer.querySelectorAll('.response-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            
+            // Update the radio button
+            element.querySelector('input[type="radio"]').checked = true;
+            
+            // Store response
+            responses[`Q${questionNum}`] = {
+                question: questions[questionNum - 1],
+                value: value,
+                text: responseOptions.find(opt => opt.value === value).text
+            };
+            
+            updateProgress();
+            checkCompletion();
+        }
+
+        function updateProgress() {
+            const completed = Object.keys(responses).length;
+            const total = questions.length;
+            const percentage = (completed / total) * 100;
+            
+            document.getElementById('progress').style.width = `${percentage}%`;
+        }
+
+        function checkCompletion() {
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMsg = document.getElementById('error-message');
+            
+            if (Object.keys(responses).length === questions.length) {
+                submitBtn.disabled = false;
+                errorMsg.classList.add('hidden');
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        function calculateScores() {
+            let totalScore = 0;
+            
+            // Calculate total score with reverse scoring for Q2
+            for (let i = 1; i <= questions.length; i++) {
+                const response = responses[`Q${i}`];
+                if (i === 2) { // Question 2: "I do not have many questions" - reverse score
+                    totalScore += (6 - response.value);
+                } else {
+                    totalScore += response.value;
+                }
+            }
+            
+            // Calculate subscale scores
+            const creativityQuestions = [1, 6, 11, 16];
+            const creativityScore = creativityQuestions.reduce((sum, q) => sum + responses[`Q${q}`].value, 0);
+            
+            const curiosityQuestions = [2, 4, 7, 9, 12, 14, 17, 19];
+            const curiosityScore = curiosityQuestions.reduce((sum, q) => {
+                return sum + (q === 2 ? (6 - responses[`Q${q}`].value) : responses[`Q${q}`].value);
+            }, 0);
+            
+            const judgmentQuestions = [3, 8, 13, 18];
+            const judgmentScore = judgmentQuestions.reduce((sum, q) => sum + responses[`Q${q}`].value, 0);
+            
+            const socialQuestions = [5, 10, 15, 20];
+            const socialScore = socialQuestions.reduce((sum, q) => sum + responses[`Q${q}`].value, 0);
+            
+            return {
+                totalScore,
+                averageScore: totalScore / questions.length,
+                creativityScore,
+                curiosityScore,
+                judgmentScore,
+                socialScore
+            };
+        }
+
+        async function submitSurvey() {
+            if (Object.keys(responses).length !== questions.length) {
+                document.getElementById('error-message').classList.remove('hidden');
+                return;
+            }
+            
+            const scores = calculateScores();
+            
+            // Prepare data for submission
+            const surveyData = {
+                ...participantInfo,
+                ...scores,
+                responses: responses,
+                submissionTime: new Date().toISOString()
+            };
+            
+            // Try to submit to Google Sheets
+            try {
+                await submitToGoogleSheets(surveyData);
+                showSuccess();
+            } catch (error) {
+                console.error('Submission error:', error);
+                // Fallback: email the researcher
+                fallbackEmailSubmission(surveyData);
+            }
+            
+            // Hide survey content and show results
+            document.getElementById('survey-content').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            
+            displayResults(scores);
+        }
+
+        async function submitToGoogleSheets(data) {
+            if (GOOGLE_APPS_SCRIPT_URL.includes('YOUR_SCRIPT_ID')) {
+                throw new Error('Google Sheets not configured');
+            }
+            
+            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            return response;
+        }
+
+        function fallbackEmailSubmission(data) {
+            // Create email with survey data
+            const emailBody = `
+WISDOM Survey Response - ${data.participantId}
+
+Participant Information:
+- ID: ${data.participantId}
+- Age: ${data.age || 'Not provided'}
+- Gender: ${data.gender || 'Not provided'}
+- Education: ${data.education || 'Not provided'}
+- Submission Time: ${data.submissionTime}
+
+Scores:
+- Total Wisdom Score: ${data.totalScore}/100
+- Average Score: ${data.averageScore.toFixed(2)}/5.00
+- Creativity Score: ${data.creativityScore}/20
+- Curiosity Score: ${data.curiosityScore}/40
+- Judgment Score: ${data.judgmentScore}/20
+- Social Score: ${data.socialScore}/20
+
+Individual Responses:
+${Object.entries(data.responses).map(([key, response]) => 
+    `${key}: ${response.value} (${response.text})`
+).join('\n')}
+            `.trim();
+            
+            const mailtoLink = `mailto:${RESEARCHER_EMAIL}?subject=WISDOM Survey Response - ${data.participantId}&body=${encodeURIComponent(emailBody)}`;
+            window.open(mailtoLink);
+        }
+
+        function showSuccess() {
+            document.getElementById('success-message').classList.remove('hidden');
+        }
+
+        function displayResults(scores) {
+            const container = document.getElementById('scores-container');
+            
+            container.innerHTML = `
+                <div><strong>Participant ID:</strong> ${participantInfo.participantId}</div>
+                <div><strong>Completion Date:</strong> ${new Date(participantInfo.timestamp).toLocaleString()}</div>
+                <br>
+                <div class="score-item">
+                    <span><strong>Total Wisdom Score:</strong></span>
+                    <span><strong>${scores.totalScore}/100</strong></span>
+                </div>
+                <div class="score-item">
+                    <span>Average Score:</span>
+                    <span>${scores.averageScore.toFixed(2)}/5.00</span>
+                </div>
+                <br>
+                <div class="score-item">
+                    <span>Creativity/Innovation:</span>
+                    <span>${scores.creativityScore}/20</span>
+                </div>
+                <div class="score-item">
+                    <span>Curiosity/Learning:</span>
+                    <span>${scores.curiosityScore}/40</span>
+                </div>
+                <div class="score-item">
+                    <span>Judgment/Decision Making:</span>
+                    <span>${scores.judgmentScore}/20</span>
+                </div>
+                <div class="score-item">
+                    <span>Social Wisdom:</span>
+                    <span>${scores.socialScore}/20</span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
