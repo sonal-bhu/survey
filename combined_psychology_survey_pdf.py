@@ -220,7 +220,7 @@ class CombinedPsychologyResearchPDFGenerator:
 
     def create_wisdom_question_row(self, question_num, question_text):
         """Create a row for wisdom questionnaire (5-point scale)"""
-        question_para = Paragraph(f"<b>W{question_num}.</b> {question_text}", self.styles['Question'])
+        question_para = Paragraph(f"<b>{question_num}.</b> {question_text}", self.styles['Question'])
         
         response_data = [
             [question_para, "___ 5", "___ 4", "___ 3", "___ 2", "___ 1"]
@@ -246,7 +246,7 @@ class CombinedPsychologyResearchPDFGenerator:
 
     def create_grit_question_row(self, question_num, question_text):
         """Create a row for grit scale (5-point scale)"""
-        question_para = Paragraph(f"<b>G{question_num}.</b> {question_text}", self.styles['Question'])
+        question_para = Paragraph(f"<b>{question_num}.</b> {question_text}", self.styles['Question'])
         
         response_data = [
             [question_para, "___ 5", "___ 4", "___ 3", "___ 2", "___ 1"]
@@ -270,9 +270,9 @@ class CombinedPsychologyResearchPDFGenerator:
         
         return table
 
-    def create_perma_question_row(self, label, question_text):
+    def create_perma_question_row(self, question_num, question_text):
         """Create a row for PERMA-Profiler (0-10 scale)"""
-        question_para = Paragraph(f"<b>P{label}.</b> {question_text}", self.styles['Question'])
+        question_para = Paragraph(f"<b>{question_num}.</b> {question_text}", self.styles['Question'])
         
         # Create 0-10 response scale exactly like reference
         response_options = []
@@ -324,32 +324,29 @@ class CombinedPsychologyResearchPDFGenerator:
         """Create the main header section"""
         header_content = []
         
-        # Main title - split into multiple lines for better formatting
-        title_line1 = Paragraph("THE ROLE OF GRIT AS A MEDIATOR IN THE", self.styles['MainTitle'])
-        title_line2 = Paragraph("RELATIONSHIP BETWEEN WISDOM AND PERMA", self.styles['MainTitle'])
-        title_line3 = Paragraph("WELL-BEING", self.styles['MainTitle'])
-        header_content.append(title_line1)
-        header_content.append(title_line2)
-        header_content.append(title_line3)
+        # Main title - updated to match text file
+        title = Paragraph("VIRTUE OF WISDOM AND WELL-BEING AMONG ADOLESCENCE :<br/>ROLE OF GRIT", self.styles['MainTitle'])
+        header_content.append(title)
         
         subtitle = Paragraph("Research Survey", self.styles['CustomSubtitle'])
         header_content.append(subtitle)
         
         header_content.append(Spacer(1, 20))
         
+        # General instructions come before demographic information
+        header_content.extend(self.create_general_instructions())
+        
         # Demographic information - collected once for all assessments
         demo_title = Paragraph("<b>DEMOGRAPHIC INFORMATION</b>", self.styles['Instructions'])
         header_content.append(demo_title)
         header_content.append(Spacer(1, 10))
         
-        # Participant information fields
+        # Participant information fields - fixed area overlap by putting on new line
         participant_fields = [
             ["Participant Name: _________________________", "Date: __________________"],
             ["Age: _______", "Gender: _________________"],
             ["Socio-Economic Status: _____Upper  _____Middle  _____Lower", ""],
             ["Area: _____ Rural   _____ Urban", ""],
-            ["Education Level:   ___High School    ___Intermediate    ___Under Graduate     ___Other", ""],
-
         ]
         
         info_table = Table(participant_fields, colWidths=[3.8*inch, 3.2*inch])
@@ -372,25 +369,23 @@ class CombinedPsychologyResearchPDFGenerator:
         """Create general instructions for all assessments"""
         instructions_content = []
         
-        # Instructions with blue box styling to match reference
+        # General instructions as specified by user
         instructions_text = """
         <b>GENERAL INSTRUCTIONS:</b> This survey consists of three parts that measure different psychological traits. 
         Please read each statement carefully and respond honestly. There are no right or wrong answers - we are 
-        interested in your genuine thoughts and feelings.<br/><br/>
+        interested in your genuine thoughts and feelings. All responses will remain strictly confidential and will 
+        be used solely for research purposes.<br/><br/>
         
-        <b>Part 1:</b> Wisdom Assessment - 20 questions using a 5-point scale<br/>
-        <b>Part 2:</b> Grit Scale - 12 questions using a 5-point scale<br/>
-        <b>Part 3:</b> PERMA Well-being Assessment - 23 questions using a 0-10 scale<br/><br/>
-        
-        Please complete all sections and mark only one response per question. Thank you for your participation!
+        Please complete all sections and mark only one response per question.<br/>
+        <b>Thank you for your participation!!</b>
         """
         
         instructions_para = Paragraph(instructions_text, self.styles['Instructions'])
         
         instructions_table = Table([[instructions_para]], colWidths=[7.0*inch])
         instructions_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), HexColor("#EBF2F9")),  # Light blue background
-            ('BOX', (0, 0), (-1, -1), 1, HexColor('#4A90E2')),  # Blue border
+            ('BACKGROUND', (0, 0), (-1, -1), HexColor("#EBF2F9")),
+            ('BOX', (0, 0), (-1, -1), 1, HexColor('#4A90E2')),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('TOPPADDING', (0, 0), (-1, -1), 15),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
@@ -410,12 +405,8 @@ class CombinedPsychologyResearchPDFGenerator:
         footer_content.append(Spacer(1, 15))
         
         footer_text = """
-        <b>FOR RESEARCH USE ONLY - SCORING SUMMARY:</b><br/><br/><br/>
-        <b>WISDOM SCORES:</b> Total: ____/100 | Creativity: ____/20 | Curiosity: ____/40 | Judgment: ____/20 | Social: ____/20<br/><br/><br/>
-        <b>GRIT SCORES:</b> Total: ______/60 | Consistency of Interest: _____/30 | Perseverance of Effort: _____/30<br/>
-        <i>Reverse score items G2, G3, G5, G6, G10, G12 for Grit calculations</i><br/><br/><br/>
-        <b>PERMA SCORES:</b> P (Positive): ______ |  E (Engagement): ______ |  R (Relationships): ______ |  M (Meaning): ______   |  A (Achievement): _____ |  Health: _____ |  Negative Emotions: _____ |  Loneliness: _____ |  Overall Happiness: ______<br/><br/><br/><br/>
-        <i>Thank you for participating in this comprehensive well-being research study.</i>
+        <br/><br/>
+        <b>THANK YOU FOR YOUR PARTICIPATION</b>
         """
         
         footer_para = Paragraph(footer_text, self.styles['Instructions'])
@@ -436,43 +427,52 @@ class CombinedPsychologyResearchPDFGenerator:
         
         content = []
         
-        # Add header and general instructions
+        # Add header (which now includes general instructions)
         content.extend(self.create_header_section())
-        content.extend(self.create_general_instructions())
         
-        # PART 1: WISDOM QUESTIONNAIRE - Start on new page
+        # SCALE 1: WISDOM QUESTIONNAIRE - Start on new page
         content.append(PageBreak())
-        content.append(Paragraph("PART 1: WISDOM ASSESSMENT", self.styles['SectionTitle']))
-        wisdom_instructions = Paragraph(
-            "<b>Instructions:</b> Rate each statement on how much it describes you: 5=Very much like me, 4=Mostly like me, 3=Somewhat like me, 2=A little like me, 1=Not like me at all", 
-            self.styles['Instructions']
-        )
+        content.append(Paragraph("SCALE 1", self.styles['SectionTitle']))
+        wisdom_instructions_text = """
+        <b>Instructions:</b> Rate each statement on how much it describes you:<br/><br/>
+        • <b>5</b> = Very much like me<br/>
+        • <b>4</b> = Mostly like me<br/>
+        • <b>3</b> = Somewhat like me<br/>
+        • <b>2</b> = A little like me<br/>
+        • <b>1</b> = Not like me at all
+        """
+        wisdom_instructions = Paragraph(wisdom_instructions_text, self.styles['Instructions'])
         content.append(wisdom_instructions)
-        content.append(Spacer(1, 10))
+        content.append(Spacer(1, 15))
         
         for i, question in enumerate(self.wisdom_questions, 1):
             question_row = self.create_wisdom_question_row(i, question)
             content.append(question_row)
             content.append(Spacer(1, 5))
         
-        # PART 2: GRIT SCALE
-        content.append(Spacer(1, 20))
-        content.append(Paragraph("PART 2: GRIT SCALE", self.styles['SectionTitle']))
-        grit_instructions = Paragraph(
-            "<b>Instructions:</b> Rate each statement: 5=Very much like me, 4=Mostly like me, 3=Somewhat like me, 2=Not much like me, 1=Not like me at all", 
-            self.styles['Instructions']
-        )
+        # SCALE 2: GRIT SCALE - Start on new page
+        content.append(PageBreak())
+        content.append(Paragraph("SCALE 2", self.styles['SectionTitle']))
+        grit_instructions_text = """
+        <b>Instructions:</b> Rate each statement:<br/><br/>
+        • <b>5</b> = Very much like me<br/>
+        • <b>4</b> = Mostly like me<br/>
+        • <b>3</b> = Somewhat like me<br/>
+        • <b>2</b> = Not much like me<br/>
+        • <b>1</b> = Not like me at all
+        """
+        grit_instructions = Paragraph(grit_instructions_text, self.styles['Instructions'])
         content.append(grit_instructions)
-        content.append(Spacer(1, 10))
+        content.append(Spacer(1, 15))
         
         for i, question in enumerate(self.grit_questions, 1):
             question_row = self.create_grit_question_row(i, question)
             content.append(question_row)
             content.append(Spacer(1, 5))
         
-        # PART 3: PERMA-PROFILER
+        # SCALE 3: PERMA-PROFILER
         content.append(Spacer(1, 20))
-        content.append(Paragraph("PART 3: PERMA WELL-BEING ASSESSMENT", self.styles['SectionTitle']))
+        content.append(Paragraph("SCALE 3", self.styles['SectionTitle']))
         perma_instructions = Paragraph(
             "<b>Instructions:</b> Rate each question on a scale from 0 to 10, where the meaning of 0 and 10 varies by question block as indicated below.", 
             self.styles['Instructions']
@@ -498,6 +498,7 @@ class CombinedPsychologyResearchPDFGenerator:
         content.append(Spacer(1, 8))
         
         # Add all PERMA question blocks
+        perma_question_counter = 1
         for block_name, block_data in self.perma_blocks.items():
             # Add scale reference for this block
             content.append(self.create_perma_scale_reference(block_data['scale']))
@@ -505,9 +506,10 @@ class CombinedPsychologyResearchPDFGenerator:
             
             # Add questions in this block
             for label, question in block_data['questions']:
-                question_row = self.create_perma_question_row(label, question)
+                question_row = self.create_perma_question_row(perma_question_counter, question)
                 content.append(question_row)
                 content.append(Spacer(1, 1))
+                perma_question_counter += 1
             
             content.append(Spacer(1, 5))
         
